@@ -36,8 +36,8 @@
 - hosts: database
   become: yes
   roles:
-   # - { role: db-mysql, addresses: '*'}
-   # - { role: mysql-db, dbname: 'ghost_prod'}
+    - { role: db-mysql, addresses: '*'}
+    - { role: mysql-db, dbname: 'ghost_prod'}
     - {
       role: mysql-user,
       username: 'deployer',
