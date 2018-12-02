@@ -1,0 +1,64 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+    - role: gcp
+      vars:
+        gcp_zone: us-east1-b
+        gcp_region: us-east1
+        gcp_project: sbdgrupo9
+        gcp_cred_kind: serviceaccount
+        gcp_cred_file: credentials.json
+        gcp_machine_type: f1-micro
+        source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20181030
+        disk_size: 12
+        disks:
+#          - disk-01
+          - disk-02
+ #         - disk-03
+        addresses:
+#         - addr-01
+          - addr-02
+#          - addr-03
+        instances:
+#          - { index: 1, tag: app }
+          - { index: 2, tag: database }
+#          - { index: 3, tag: lb }
+
+
+- hosts: all
+  become: yes
+  roles:
+    - { role: users, payload: users.yml }
+
+- hosts: database
+  become: yes
+  roles:
+   # - { role: db-mysql, addresses: '*'}
+   # - { role: mysql-db, dbname: 'ghost_prod'}
+    - {
+      role: mysql-user,
+      username: 'deployer',
+      password: '123456', #"{{ lookup('passwordstore','ansible/uc/db create=true length=8') }}",
+      dbname: 'ghost_prod'
+      }
+
+# - hosts: app
+#   become: yes
+#   roles:
+#     - { role: app-passwords, payload: app-passwords.yml }
+
+# - hosts: lb
+#   become: yes
+#   roles:
+#     - web-nginx
+#     - {
+#       role: nginx-vhost,
+#       template: uwsgi-vhost,
+#       fqdn: uc.lsd.di.uminho.pt,
+#       root: /srv/apps,
+#       backend_addresses: "{{ groups['app'] }}",
+#       backend_port: 5000
+#       }

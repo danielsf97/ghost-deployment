@@ -1,0 +1,93 @@
+---
+
+- name: Install MySQL
+  apt:
+    name: "{{ item }}"
+  sudo: yes
+  with_items:
+    - python-mysqldb
+    - mysql-server
+  tags:
+    - db
+
+- name: Update MySQL root password for all root accounts 
+  mysql_user:
+    name: root
+    host: "{{ item }}"
+    password: "root"
+    state: present
+  with_items:
+    - "{{ ansible_hostname }}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+- name: Copy the templates to their respestive destination
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root 
+    group: root 
+    mode: "{{ item.mode | default(644) }}"
+  with_items:
+    - { src: 'my.cnf.j2', dest: '/etc/mysql/my.cnf' }
+  #  - { src: 'root.cnf.j2', dest: '~/.my.cnf', mode: '600' }
+  notify:
+    - restart mysql
+
+- name: Ensure Anonymous user(s) are not in the database
+  mysql_user:
+    name: ''
+    host: "{{ item }}"
+    state: absent
+  with_items:
+    - localhost
+    - "{{ ansible_hostname }}"
+
+# - name: Uncomment listen addresses configuration
+#   replace:
+#     path: "/etc/mysql/my.cnf"
+#     regexp: '^#listen_addresses'
+#     replace: listen_addresses
+#   notify:
+#     - restart mysql
+#   tags:
+#     - db
+
+# - name: Replace listen addresses
+#   replace:
+#     path: "/etc/postgresql/{{ version }}/main/postgresql.conf"
+#     regexp: "^listen_addresses\\s+=\\s+'(.*)'"
+#     replace: "listen_addresses = '{{ addresses }}'"
+#   notify:
+#     - restart postgresql
+#   when: addresses is defined
+#   tags:
+#     - db
+
+
+# - name: Aquilo do bind-address
+#   sudo: yes
+#   lineinfile:
+#     path: /etc/mysql/my.cnf
+#     line: 'bind-address = 0.0.0.0'
+#     create: yes
+#   notify: restart mysql
+#   tags:
+#     - db
+
+# - name: Start the MySQL service
+#   sudo: yes
+#   service: 
+#     name: mysql 
+#     state: started
+#     enabled: true
+
+# - name: Ensure service is enabled and started
+#   sudo: yes
+#   service:
+#     name: mysql
+#     state: restarted
+#     enabled: true
+#   tags:
+#     - db

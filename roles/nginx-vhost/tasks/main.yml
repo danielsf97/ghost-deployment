@@ -1,0 +1,16 @@
+---
+
+# configuration
+# - template
+# - fqdn
+# - root
+# - backend_addresses
+# - backend_port
+- name: Copy virtual host configuration
+  template:
+    src: "{{ template }}.j2"
+    dest: /etc/nginx/vhosts/{{ fqdn }}.conf
+  notify:
+    - restart nginx
+  tags:
+    - vhost

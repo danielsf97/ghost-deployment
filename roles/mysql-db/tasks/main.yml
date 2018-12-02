@@ -1,0 +1,7 @@
+---
+
+- name: Create MySQL database
+  mysql_db:
+    name: "{{ dbname }}"
+  tags:
+    - db
