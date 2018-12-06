@@ -7,3 +7,6 @@ ghost_nodejs_path: /usr/bin/node
 
 ghost_service_name: "{{ ghost_install_dir | basename }}"
 ghost_internal_url: http://{{ ghost_config_server.host }}:{{ ghost_config_server.port }}
+
+mailgun-user: oo
+mailgun-password: oo

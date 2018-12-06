@@ -1,0 +1,58 @@
+---
+
+
+- name: sleep for a specified interval
+  command: sleep 120
+
+
+- name: Instalacao mySQL
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  with_items:
+    - python-mysqldb
+    - mysql-server
+          
+- name: Iniciar o mysql
+  service:
+          name: mysql 
+          state: started
+          enabled: true
+
+- name: update mysql root password
+  #sudo: yes
+  mysql_user: 
+      name: root
+      host: localhost 
+      password: "{{ root_passwd }}"
+      login_user: root
+      login_password: "{{ root_passwd }}"
+
+- name: Create a new database besides root
+  mysql_db:
+          name: "{{ dbname }}"
+          state: present
+          login_user: root
+          login_password: "{{ root_passwd }}"
+
+- name: create owncloud user
+  #sudo: yes
+  mysql_user: 
+      name: "{{ username }}"
+      host: "%" 
+      password: "{{ password }}"
+      priv: "{{dbname}}.*:ALL"
+      login_user: root
+      login_password: "{{ root_passwd }}"
+
+- name: replace IP binding
+  replace:
+          regexp: "bind-address[^\n]*"
+          path: "/etc/mysql/mysql.conf.d/mysqld.cnf"
+          #replace: "bind-address        = {{ inventory_hostname }}"
+          replace: "bind-address        = 0.0.0.0"
+          #{{ db_internal_addr }}
+
+- name: restart mysql
+  service: name=mysql state=restarted

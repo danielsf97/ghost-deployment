@@ -1,108 +1,339 @@
+# ---
+# - name: create build env for Docker
+#   file:
+#           path: /tmp/webapp_owncloud
+#           state: directory
+
+# - name: create Dockerfile
+#   template:
+#           src: Dockerfile.j2
+#           dest: /tmp/webapp_owncloud/Dockerfile
+#           owner: www-data
+#           group: www-data
+
+# - name: mount data storage
+#   mount:
+#     path: /var/owncloud_data
+#     src: "{{ storage_location }}"
+#     state: mounted
+#     fstype: nfs
+
+# - name: mount configuration storage
+#   mount:
+#     path: /var/owncloud_config
+#     src: "{{ config_location }}"
+#     state: mounted
+#     fstype: nfs
+
+# - name: build Docker image
+#   docker_image:
+#     path: /tmp/webapp_owncloud
+#     name: g3/owncloud
+
+# - name: run docker container in port 80
+#   docker_container:
+#           name: owncloud_webapp
+#           volumes: 
+#             - /var/owncloud_data:/var/www/data
+#             - /var/owncloud_config:/var/www/html/config
+#           published_ports:
+#             - 8080:80
+#           image: g3/owncloud 
+#           detach: false
+#   async: 3
+#   poll: 0
+
+# - name: Check if the configuration files exist
+#   stat:
+#      path: /var/owncloud_config/config.php
+#   register: stat_result
+
+# - name: Check if configuration file is valid
+#   become_user: www-data
+#   shell: grep "'installed' => true," /var/owncloud_config/config.php
+#   register: test_grep
+#   when: stat_result.stat.exists == True 
+#   ignore_errors: yes
+
+# - name: Configures owncloud if not initialized
+#   shell: docker exec owncloud_webapp sudo -u www-data php occ maintenance:install \
+#         --database "mysql" \
+#         --database-host "{{ master_db }}" --database-name "owncloud" \
+#         --database-user "owncloud" --database-pass "12345" \
+#         --admin-user "admin" --admin-pass "admin" \
+#         --data-dir "/var/www/data"
+#   run_once: true
+#   when: stat_result.stat.exists == False or test_grep.stdout == ""
+
+# - name: add server location to trusted domains
+#   command: docker exec -t owncloud_webapp \
+#          sudo -u www-data php occ config:system:set \
+#          trusted_domains {{ item }} --value={{ item }}
+#   with_items:
+#       - "{{ trusted_domains }}"
+# run_once: true
+
+
+
+
 ---
-
-- name: Include user variables
-  include_vars:
-    file: "{{ payload }}"
-  tags:
-    - app
-
-- name: Install system packages
-  apt:
-    name:
-      - virtualenv
-      - build-essential
-      - python-dev
-      - git
-      - postgresql-client
-    state: latest
-  tags:
-    - app
-
-- name: Initial setup
+- name: create build env for Docker
   file:
-    path: "{{ item }}"
-    state: directory
-    owner: deployer
-    group: deployer
-    mode: 0775
-  with_items:
-    - /srv/apps
-  tags:
-    - app
+          path: /tmp/docker_env
+          state: directory
 
-- name: Clone repository
-  become_user: "{{ app.username }}"
-  git:
-    repo: "{{ app.repository }}"
-    dest: "{{ app.root }}"
-    version: "{{ app.version }}"
-  tags:
-    - app
-
-- name: Missing directories
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: deployer
-    group: deployer
-    mode: 0775
-  with_items:
-    - "{{ app.root }}/tmp"
-    - "{{ app.root }}/logs"
-  tags:
-    - app
-
-- name: Copy production configuration
+- name: create Dockerfile
   template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ app.username }}"
-    group: "{{ app.username }}"
-    mode: 0750
-  with_items:
-    - { src: env.j2, dest: "{{ app.root }}/.env" }
-    - { src: uwsgi.ini.j2, dest: "{{ app.root }}/uwsgi.ini" }
-  tags:
-    - app
+          src: Dockerfile.j2
+          dest: /tmp/docker_env/Dockerfile
 
-- name: Setup Python virtual environment
-  become_user: "{{ app.username }}"
-  shell: virtualenv --no-site-packages .venv >> .virtualenv.lock
-  args:
-    chdir: "{{ app.root }}"
-    creates: .virtualenv.lock
-  tags:
-    - app
-
-- name: Install application dependencies
-  become_user: "{{ app.username }}"
-  pip:
-    requirements: "{{ app.root }}/requirements.txt"
-    virtualenv: "{{ app.root }}/.venv"
-  tags:
-    - app
+- name: build Docker image
+  docker_image:
+    path: /tmp/docker_env
+    name: my/ghost
 
 
-- name: Import database schema
-  become_user: "{{ app.username }}"
-  shell: "psql postgresql://{{ app.db.user }}:{{ app.db.password }}@{{ hostvars[groups['database'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address}}/{{ app.db.name }} < support/schema.sql"
-  args:
-    chdir: "{{ app.root }}"
-    creates: .schema.lock
-  tags:
-    - app
+# - set_fact:
+#     ghost_db_user: "{{ ghost_project_domain | regex_replace('[^A-Za-z0-9]+','') | truncate(16, True,'')}}"
+#     ghost_db_name: "{{ ghost_project_domain | regex_replace('[^A-Za-z0-9]+','') }}"
 
-- name: Copy systemctl script
-  template:
-    src: "{{ app.name }}.service.j2"
-    dest: "/etc/systemd/system/{{ app.name }}.service"
-  tags:
-    - app
+# - set_fact:
+#     ghost_db_password: "{{ lookup('password', 'files/db_credentials/' + ghost_db_user + '/' + ghost_db_name + '/mysqlpassword length=15') }}"
 
-- name: Start and enable application service
-  service:
-    name: "{{ app.name }}"
-    state: restarted
-    enabled: yes
-  tags:
-    - app
+# - name: Check installed Ghost CLI version
+#   shell: "ghost version | grep {{ ghost_cli_version }}"
+#   register: ghost_cli_version_rc
+#   ignore_errors: yes
+
+
+# - name: Install Ghost cli package
+#   npm:
+#     name: "ghost-cli@{{ ghost_cli_version }}"
+#     global: yes
+#   state: present
+
+# - name: prepare - install unzip
+#   apt:
+#     pkg: unzip
+#     update_cache: yes
+#     cache_valid_time: 3600
+#     state: installed
+#   become: yes
+
+# - name: prepare - add Ghost group
+#   group:
+#     name: "{{ ghost_user_group }}"
+#     system: yes
+#     state: present
+#   become: yes
+
+# - name: prepare - add Ghost user
+#   user:
+#     name: "{{ ghost_user_name }}"
+#     group: "{{ ghost_user_group }}"
+#     home: "{{ ghost_user_home }}"
+#     createhome: yes
+#     shell: /bin/false
+#     system: yes
+#     state: present
+#   become: yes
+
+# - name: prepare - fetch Ghost
+#   get_url:
+#     url: "{{ ghost_fetch_url }}"
+#     dest: "{{ ghost_fetch_dir }}/ghost.zip"
+#   become: yes
+
+# - name: prepare - change Ghost user home permissions
+#   file:
+#     dest: "{{ ghost_user_home }}"
+#     owner: "{{ ghost_user_name }}"
+#     group: "{{ ghost_user_group }}"
+#     mode: 0755
+#     state: directory
+#   become: yes
+
+# - name: prepare - check if Ghost installation path exists
+#   stat:
+#     path: "{{ ghost_install_dir }}"
+#   register: ghost_check_install_dir
+
+# - name: prepare - create Ghost installation path if necessary
+#   file:
+#     dest: "{{ ghost_install_dir }}"
+#     owner: "{{ ghost_user_name }}"
+#     group: "{{ ghost_user_group }}"
+#     mode: 0755
+#     state: directory
+#   become: yes
+#   when: not ghost_check_install_dir.stat.exists
+
+# - name: prepare - unzip Ghost
+#   unarchive:
+#     src: "{{ ghost_fetch_dir }}/ghost.zip"
+#     dest: "{{ ghost_install_dir }}"
+#     owner: "{{ ghost_user_name }}"
+#     group: "{{ ghost_user_group }}"
+#     copy: no
+#     creates: "{{ ghost_install_dir }}/index.js"
+#   become: yes
+
+# - name: main - get libc version
+#   command: dpkg-query -W -f '${version}\n' libc6
+#   changed_when: false
+#   register: libc_version
+
+# - name: sqlite3 - install node-gyp dependencies if libc is old
+#   apt:
+#     pkg: "{{ item }}"
+#     update_cache: yes
+#     cache_valid_time: 3600
+#     state: present
+#   become: yes
+#   with_items:
+#     - python
+#     - build-essential
+#     - npm
+
+
+# - name: install - install Ghost
+#   npm:
+#     path: "{{ ghost_install_dir }}"
+#     production: yes
+#     state: present
+#   become: yes
+
+# - name: install - add configurations
+#   template:
+#     src: config.js.j2
+#     dest: "{{ ghost_install_dir }}/config.js"
+#     owner: "{{ ghost_user_name }}"
+#     group: "{{ ghost_user_group }}"
+#     mode: 0644
+#   notify: ghost - restart service
+#   become: yes
+
+# - name: install - add init script
+#   template:
+#     src: init.ghost.j2
+#     dest: "/etc/init.d/{{ ghost_service_name }}"
+#     owner: root
+#     group: root
+#     mode: 0755
+#   become: yes
+
+# - name: install - enable Ghost service
+#   service:
+#     name: "{{ ghost_service_name }}"
+#     enabled: yes
+#     state: started
+#   become: yes
+
+# ---
+
+# - name: Include user variables
+#   include_vars:
+#     file: "{{ payload }}"
+#   tags:
+#     - app
+
+# - name: Install system packages
+#   apt:
+#     name:
+#       - virtualenv
+#       - build-essential
+#       - python-dev
+#       - git
+#       - postgresql-client
+#     state: latest
+#   tags:
+#     - app
+
+# - name: Initial setup
+#   file:
+#     path: "{{ item }}"
+#     state: directory
+#     owner: deployer
+#     group: deployer
+#     mode: 0775
+#   with_items:
+#     - /srv/apps
+#   tags:
+#     - app
+
+# - name: Clone repository
+#   become_user: "{{ app.username }}"
+#   git:
+#     repo: "{{ app.repository }}"
+#     dest: "{{ app.root }}"
+#     version: "{{ app.version }}"
+#   tags:
+#     - app
+
+# - name: Missing directories
+#   file:
+#     path: "{{ item }}"
+#     state: directory
+#     owner: deployer
+#     group: deployer
+#     mode: 0775
+#   with_items:
+#     - "{{ app.root }}/tmp"
+#     - "{{ app.root }}/logs"
+#   tags:
+#     - app
+
+# - name: Copy production configuration
+#   template:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#     owner: "{{ app.username }}"
+#     group: "{{ app.username }}"
+#     mode: 0750
+#   with_items:
+#     - { src: env.j2, dest: "{{ app.root }}/.env" }
+#     - { src: uwsgi.ini.j2, dest: "{{ app.root }}/uwsgi.ini" }
+#   tags:
+#     - app
+
+# - name: Setup Python virtual environment
+#   become_user: "{{ app.username }}"
+#   shell: virtualenv --no-site-packages .venv >> .virtualenv.lock
+#   args:
+#     chdir: "{{ app.root }}"
+#     creates: .virtualenv.lock
+#   tags:
+#     - app
+
+# - name: Install application dependencies
+#   become_user: "{{ app.username }}"
+#   pip:
+#     requirements: "{{ app.root }}/requirements.txt"
+#     virtualenv: "{{ app.root }}/.venv"
+#   tags:
+#     - app
+
+
+# - name: Import database schema
+#   become_user: "{{ app.username }}"
+#   shell: "psql postgresql://{{ app.db.user }}:{{ app.db.password }}@{{ hostvars[groups['database'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address}}/{{ app.db.name }} < support/schema.sql"
+#   args:
+#     chdir: "{{ app.root }}"
+#     creates: .schema.lock
+#   tags:
+#     - app
+
+# - name: Copy systemctl script
+#   template:
+#     src: "{{ app.name }}.service.j2"
+#     dest: "/etc/systemd/system/{{ app.name }}.service"
+#   tags:
+#     - app
+
+# - name: Start and enable application service
+#   service:
+#     name: "{{ app.name }}"
+#     state: restarted
+#     enabled: yes
+#   tags:
+#     - app
