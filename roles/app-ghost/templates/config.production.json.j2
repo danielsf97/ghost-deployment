@@ -1,15 +1,15 @@
 {
-  "url": "{{ ghost_config_url }}",
+  "url": "http://{{ inventory_hostname }}",
   "server": {
     "port": 2368,
-    "host": "127.0.0.1"
+    "host": "0.0.0.0"
   },
   "database": {
     "client": "mysql",
     "connection": {
-      "host": "10.0.0.22",
-      "user": "ghost-197",
-      "password": "_YImnRnWGwvb!N7)LMtn",
+      "host": "{{ hostvars[groups['database'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
+      "user": "blog",
+      "password": "123",
       "database": "ghost_db"
     }
   },
@@ -24,10 +24,11 @@
   },
   "process": "systemd",
   "paths": {
-    "contentPath": "/var/www/ghost/content"
+    "contentPath": "content/"
   },
   "bootstrap-socket": {
     "port": 8000,
     "host": "localhost"
   }
 }
+                                                                                             

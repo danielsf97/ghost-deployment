@@ -57,7 +57,7 @@
   become: yes
   roles:
     - role: docker
-    - role: app-ghost3
+    - role: app-ghost
     # - { role: app2-ghost,
     #     username: 'deployer',
     #     password: '123456',
