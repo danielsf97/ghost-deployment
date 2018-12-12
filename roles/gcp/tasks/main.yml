@@ -52,7 +52,7 @@
     allowed:
       - ip_protocol: tcp
         ports:
-          - 5432
+          - 3306
           - 5000
     source_ranges:
       - 10.128.0.0/9
@@ -73,9 +73,7 @@
     metadata:
       startup-script: |
         #!/bin/bash
-        apt-get update -y
-        apt-get upgrade -y
-        apt-get install aptitude -y
+        ls
     tags:
       items: "{{ item.tag }}"
     network_interfaces:

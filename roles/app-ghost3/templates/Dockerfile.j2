@@ -1,0 +1,9 @@
+FROM mm97/ghost_install:v1
+ENV NODE_ENV production
+WORKDIR /ghost
+ADD config.production.json config.production.json
+RUN npx knex-migrator init
+CMD ["node", "index.js"]
+
+#CMD npx knex-migrator init && node index.js
+

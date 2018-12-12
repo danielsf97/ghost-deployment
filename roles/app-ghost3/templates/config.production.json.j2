@@ -1,0 +1,34 @@
+{
+  "url": "{{ hostvars[groups['app'][0]].networkInterfaces[0].accessConfigs[0].natIP }}",
+  "server": {
+    "port": 2368,
+    "host": "0.0.0.0"
+  },
+  "database": {
+    "client": "mysql",
+    "connection": {
+      "host": "{{ hostvars[groups['database'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
+      "user": "blog",
+      "password": "123",
+      "database": "ghost_db"
+    }
+  },
+  "mail": {
+    "transport": "Direct"
+  },
+  "logging": {
+    "transports": [
+      "file",
+      "stdout"
+    ]
+  },
+  "process": "systemd",
+  "paths": {
+    "contentPath": "content/"
+  },
+  "bootstrap-socket": {
+    "port": 8000,
+    "host": "localhost"
+  }
+}
+                                                                                             

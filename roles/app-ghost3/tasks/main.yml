@@ -1,0 +1,37 @@
+
+---
+
+- name: create build env for Docker
+  file:
+          path: /tmp/docker_env
+          state: directory
+
+- name: create Dockerfile
+  template:
+          src: Dockerfile.j2
+          dest: /tmp/docker_env/Dockerfile
+
+- name: create config.production.json
+  template:
+          src: Dockerfile.j2
+          dest: /tmp/docker_env/Dockerfile
+
+- name: create Dockerfile
+  template:
+          src: config.production.json.j2
+          dest: /tmp/docker_env/config.production.json
+
+- name: build Docker image
+  docker_image:
+    path: /tmp/docker_env
+    name: my/ghost
+
+- name: run docker container in port 80
+  docker_container:
+          name: ghost_blog
+          published_ports:
+            - 80:2368
+          image: my/ghost
+          detach: false
+  async: 3
+  poll: 0

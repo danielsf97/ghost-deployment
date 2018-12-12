@@ -16,15 +16,15 @@
         disk_size: 12
         disks:
           - disk-01
-  #        - disk-02
+          - disk-02
  #         - disk-03
         addresses:
           - addr-01
-      #    - addr-02
+          - addr-02
 #          - addr-03
         instances:
           - { index: 1, tag: app }
-    #      - { index: 2, tag: database }
+          - { index: 2, tag: database }
 #          - { index: 3, tag: lb }
 
 
@@ -36,16 +36,16 @@
 
 
 
-# - hosts: database
-#   become: yes
-#   roles:
-#     - { role: database,
-#         username: 'deployer',
-#         password: '123456',
-#         dbname: 'ghost_prod'
-#       } 
+- hosts: database
+  become: yes
+  roles:
+    - { role: database,
+        username: 'blog',
+        password: '123',
+        dbname: 'ghost_db'
+      } 
     # - { role: db-mysql, addresses: '*'}
-    # - { role: mysql-db, dbname: 'ghost_prod'}
+    # - { role: mysql-db, dbname: 'ghost_'}
     # - {
     #   role: mysql-user,
     #   username: 'deployer',
@@ -57,7 +57,7 @@
   become: yes
   roles:
     - role: docker
-    - role: app-ghost
+    - role: app-ghost3
     # - { role: app2-ghost,
     #     username: 'deployer',
     #     password: '123456',

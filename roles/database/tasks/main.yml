@@ -1,10 +1,6 @@
 ---
 
 
-- name: sleep for a specified interval
-  command: sleep 120
-
-
 - name: Instalacao mySQL
   apt:
     name: "{{ item }}"
@@ -36,7 +32,7 @@
           login_user: root
           login_password: "{{ root_passwd }}"
 
-- name: create owncloud user
+- name: create  user
   #sudo: yes
   mysql_user: 
       name: "{{ username }}"
