@@ -50,14 +50,14 @@
   tags:
     - web
 
-- name: Copy host configuration
-  template:
-    src: "{{ template }}.j2"
+- name: Copy ghost nginx configuration file
+  copy:
+    src: ghost.conf
     dest: /etc/nginx/conf.d/ghost.conf
   notify:
     - restart nginx
   tags:
-    - vhost
+    - web
 
 - name: Enable nginx service
   service:
