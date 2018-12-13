@@ -75,7 +75,7 @@
         #!/bin/bash
         ls
     tags:
-      items: "{{ item.tag }}"
+      items: "{{ item.tags }}"
     network_interfaces:
       - network: "{{ network }}"
         access_configs:

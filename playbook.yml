@@ -17,24 +17,28 @@
         disks:
           - disk-01
           - disk-02
- #         - disk-03
+          - disk-03
+          - disk-04
         addresses:
           - addr-01
           - addr-02
-#          - addr-03
+          - addr-03
+          - addr-04
         instances:
-          - { index: 1, tag: app }
-          - { index: 2, tag: database }
-#          - { index: 3, tag: lb }
+          - { index: 1, 
+              tags: [app, nginx]
+            }
+          - { index: 2, 
+              tags: [app, nginx]
+            }
+          - { index: 3, tags: database }
+          - { index: 4, tags: haproxy }
 
 
 - hosts: all
   become: yes
   roles:
     - { role: users, payload: users.yml }
-
-
-
 
 - hosts: database
   become: yes
@@ -64,15 +68,31 @@
     #     dbname: 'ghost_prod'
     #   }
 
-# - hosts: lb
-#   become: yes
-#   roles:
-#     - web-nginx
-#     - {
-#       role: nginx-vhost,
-#       template: uwsgi-vhost,
-#       fqdn: uc.lsd.di.uminho.pt,
-#       root: /srv/apps,
-#       backend_addresses: "{{ groups['app'] }}",
-#       backend_port: 5000
-#       }
+- hosts: nginx
+  become: yes
+  roles:
+    - {
+        role: web-nginx,
+        template: ghost.conf
+      }
+    # - {
+    #   role: nginx-vhost,
+    #   template: uwsgi-vhost,
+    #   fqdn: uc.lsd.di.uminho.pt,
+    #   root: /srv/apps,
+    #   backend_addresses: "{{ groups['app'] }}",
+    #   backend_port: 5000
+    #   }
+
+- hosts: haproxy
+  become: yes
+  roles:
+    - {
+      role: haproxy,
+      iface: '{{ ansible_default_ipv4.interface }}',
+      httpd_port: 80,
+      mode: http,
+      balance: roundrobin,
+      listenport: 8888,
+      daemonname: myapphaproxy
+      }

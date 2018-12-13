@@ -9,7 +9,7 @@
 - name: Copy virtual host configuration
   template:
     src: "{{ template }}.j2"
-    dest: /etc/nginx/vhosts/{{ fqdn }}.conf
+    dest: /etc/nginx/vhosts/{{ inventory_hostname }}.conf
   notify:
     - restart nginx
   tags:

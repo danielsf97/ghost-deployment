@@ -43,7 +43,7 @@
   docker_container:
           name: ghost_blog
           published_ports:
-            - 80:2368
+            - 2368:2368
           image: my/ghost
           detach: false
   async: 3
