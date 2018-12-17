@@ -57,7 +57,9 @@
         dbname: 'ghost_db'
       } 
     - { role: beats,
-        elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}"
+        elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
+        modules: ["mysql"],
+        log_files: "/var/log/mysql/*.log"
       }
     # - { role: db-mysql, addresses: '*'}
     # - { role: mysql-db, dbname: 'ghost_'}
@@ -74,7 +76,8 @@
     - role: docker
     - role: app-ghost
     - { role: beats,
-        elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}"
+        elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
+        modules: ["system"]
       }
     # - { role: app2-ghost,
     #     username: 'deployer',
@@ -97,6 +100,11 @@
     #   backend_addresses: "{{ groups['app'] }}",
     #   backend_port: 5000
     #   }
+    - { role: beats,
+        elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
+        modules: ["nginx", "system"],
+        log_files: "/var/log/nginx/*.log"
+      }
 
 
 - hosts: haproxy
@@ -112,5 +120,6 @@
       daemonname: myapphaproxy
       }
     - { role: beats,
-        elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}"
+        elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
+        modules: ["haproxy", "system"]
       }

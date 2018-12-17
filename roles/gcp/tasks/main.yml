@@ -54,6 +54,8 @@
         ports:
           - 3306
           - 5000
+          - 9200
+          - 9300
     source_ranges:
       - 10.128.0.0/9
     network: "global/networks/{{ network.name }}"
