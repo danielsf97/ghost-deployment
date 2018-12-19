@@ -20,26 +20,12 @@
     - web
   notify: restart nginx
 
-- name: Debug1
-  debug:
-    msg: "{{ hostvars }}"
-
-- name: Debug2
-  debug:
-    msg: "{{ groups['nginx'] }}"
 - name: Remove base install configuration
   file:
     path: /etc/nginx/conf.d/default.conf
     state: absent
   tags:
     - web
-
-# - name: Create virtual hosts folder
-#   file:
-#     path: /etc/nginx/vhosts
-#     state: directory
-#   tags:
-#     - web
 
 - name: Copy configuration file
   copy:

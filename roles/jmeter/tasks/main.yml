@@ -1,0 +1,21 @@
+---
+
+- name: Install Java
+  become: yes
+  apt: 
+    name: default-jdk
+    state: latest
+
+- name: Download jmeter
+  shell: wget https://www-us.apache.org/dist//jmeter/binaries/apache-jmeter-5.0.tgz
+
+- name: Extract jmeter
+  shell: tar -xzvf apache-jmeter-5.0.tgz
+
+- name: Copy jmeter test file to remote machine
+  template:
+    src: "Ghost.jmx.j2"
+    dest: "Ghost.jmx"
+
+- name: Run jmeter test
+  command: ./apache-jmeter-5.0/bin/jmeter -n -t Ghost.jmx

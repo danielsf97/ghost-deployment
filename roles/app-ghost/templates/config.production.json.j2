@@ -9,12 +9,19 @@
     "connection": {
       "host": "{{ hostvars[groups['database'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
       "user": "blog",
-      "password": "123",
+      "password": "{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
       "database": "ghost_db"
     }
   },
   "mail": {
-    "transport": "Direct"
+    "transport": "SMTP",
+    "options": {
+      "service": "Mailgun",
+      "auth": {
+        "user": "postmaster@sandbox190a597ad92847aab4b5ca436e2e63f4.mailgun.org",
+        "pass": "{{ lookup('passwordstore', 'sdb-ghost/mailgun') }}"
+      }
+    }
   },
   "logging": {
     "transports": [
@@ -31,4 +38,4 @@
     "host": "localhost"
   }
 }
-                                                                                             
+                                                                                            

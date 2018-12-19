@@ -1,7 +1,16 @@
 ---
 
+#- name: Try to specify preference for mysql
+#  shell: echo mysql-apt-config mysql-apt-config/select-server select mysql-8.0 | debconf-set-selections
+#  become: yes
+#
+#- name: Add mysql apt-config debian
+#  apt: 
+#    deb: http://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb
+#    update-cache: yes
+#  become: yes
 
-- name: Instalacao mySQL
+- name: Install mySQL
   apt:
     name: "{{ item }}"
     state: latest
@@ -10,45 +19,42 @@
     - python-mysqldb
     - mysql-server
           
-- name: Iniciar o mysql
+- name: Run mysql
   service:
-          name: mysql 
-          state: started
-          enabled: true
+    name: mysql 
+    state: started
+    enabled: true
 
-- name: update mysql root password
-  #sudo: yes
+- name: Update mysql root password
   mysql_user: 
-      name: root
-      host: localhost 
-      password: "{{ root_passwd }}"
-      login_user: root
-      login_password: "{{ root_passwd }}"
+    name: root
+    host: localhost 
+    password: "{{ root_passwd }}"
+    login_user: root
+    login_password: "{{ root_passwd }}"
 
 - name: Create a new database besides root
   mysql_db:
-          name: "{{ dbname }}"
-          state: present
-          login_user: root
-          login_password: "{{ root_passwd }}"
+    name: "{{ dbname }}"
+    state: present
+    login_user: root
+    login_password: "{{ root_passwd }}"
 
-- name: create  user
-  #sudo: yes
+- name: Create user
   mysql_user: 
-      name: "{{ username }}"
-      host: "%" 
-      password: "{{ password }}"
-      priv: "{{dbname}}.*:ALL"
-      login_user: root
-      login_password: "{{ root_passwd }}"
+    name: "{{ username }}"
+    host: "%" 
+    password: "{{ password }}"
+    priv: "{{dbname}}.*:ALL"
+    login_user: root
+    login_password: "{{ root_passwd }}"
 
-- name: replace IP binding
-  replace:
-          regexp: "bind-address[^\n]*"
-          path: "/etc/mysql/mysql.conf.d/mysqld.cnf"
-          #replace: "bind-address        = {{ inventory_hostname }}"
-          replace: "bind-address        = 0.0.0.0"
-          #{{ db_internal_addr }}
+- name: Replace config file
+  template:
+    src: my.cnf.j2
+    dest: /etc/mysql/my.cnf
 
-- name: restart mysql
-  service: name=mysql state=restarted
+- name: Restart mysql
+  service:
+    name: mysql
+    state: restarted

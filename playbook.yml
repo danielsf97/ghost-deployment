@@ -20,22 +20,24 @@
           - disk-03
           - disk-04
           - disk-05
+          - disk-06
+          - disk-07
         addresses:
           - addr-01
           - addr-02
           - addr-03
           - addr-04
           - addr-05
+          - addr-06
+          - addr-07
         instances:
           - { index: 1, tags: elasticsearch }
-          - { index: 2, 
-              tags: [app, nginx]
-            }
-          - { index: 3, 
-              tags: [app, nginx]
-            }
+          - { index: 2, tags: [app, nginx] }
+          - { index: 3, tags: [app, nginx] }
           - { index: 4, tags: database }
-          - { index: 5, tags: haproxy }
+          - { index: 5, tags: database }
+          - { index: 6, tags: haproxy }
+          - { index: 7, tags: jmeter }
 
 - hosts: all
   become: yes
@@ -53,7 +55,7 @@
   roles:
     - { role: database,
         username: 'blog',
-        password: '123',
+        password: "{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
         dbname: 'ghost_db'
       } 
     - { role: beats,
@@ -61,14 +63,6 @@
         modules: ["mysql"],
         log_files: "/var/log/mysql/*.log"
       }
-    # - { role: db-mysql, addresses: '*'}
-    # - { role: mysql-db, dbname: 'ghost_'}
-    # - {
-    #   role: mysql-user,
-    #   username: 'deployer',
-    #   password: '123456', #"{{ lookup('passwordstore','ansible/uc/db create=true length=8') }}",
-    #   dbname: 'ghost_prod'
-    #   }
 
 - hosts: app
   become: yes
@@ -79,11 +73,6 @@
         elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
         modules: ["system"]
       }
-    # - { role: app2-ghost,
-    #     username: 'deployer',
-    #     password: '123456',
-    #     dbname: 'ghost_prod'
-    #   }
 
 - hosts: nginx
   become: yes
@@ -92,34 +81,31 @@
         role: web-nginx,
         template: ghost.conf
       }
-    # - {
-    #   role: nginx-vhost,
-    #   template: uwsgi-vhost,
-    #   fqdn: uc.lsd.di.uminho.pt,
-    #   root: /srv/apps,
-    #   backend_addresses: "{{ groups['app'] }}",
-    #   backend_port: 5000
-    #   }
     - { role: beats,
         elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
         modules: ["nginx", "system"],
         log_files: "/var/log/nginx/*.log"
       }
 
-
 - hosts: haproxy
   become: yes
   roles:
-    - {
-      role: haproxy,
-      iface: '{{ ansible_default_ipv4.interface }}',
-      httpd_port: 80,
-      mode: http,
-      balance: roundrobin,
-      listenport: 8888,
-      daemonname: myapphaproxy
+    - { role: haproxy,
+        iface: '{{ ansible_default_ipv4.interface }}',
+        httpd_port: 80,
+        mode: http,
+        balance: roundrobin,
+        listenport: 8888,
+        daemonname: myapphaproxy
       }
     - { role: beats,
         elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
         modules: ["haproxy", "system"]
+      }
+
+- hosts: jmeter
+  become: yes
+  roles:
+    - { role: jmeter,
+        sampler_domain: "{{ hostvars[groups['haproxy'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}"
       }

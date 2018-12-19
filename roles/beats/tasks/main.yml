@@ -1,38 +1,56 @@
 ---
 
 
-- name: download public key for elastic repo
+- name: Download public key for elastic repo
   shell: curl https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 
-- name: add repo definition
+- name: Add repo definition
   shell: echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
 
-- name: install beats
-  apt:
-    update_cache: yes
-    name: "{{ item }}"
-    state: latest
+- name: Download beats
+  shell: curl -L -O https://artifacts.elastic.co/downloads/beats/{{ item }}/{{ item }}-6.5.3-amd64.deb
   with_items:
-    - metricbeat
+    - metricbeat 
+    - packetbeat
     - filebeat
+
+- name: Install beats
+  shell: dpkg -i {{ item }}-6.5.3-amd64.deb
+  with_items:
+    - metricbeat 
+    - packetbeat
+    - filebeat
+
+- name: Copy config files
+  template:
+    src: "{{ item }}.yml.j2"
+    dest: "/etc/{{ item }}/{{ item }}.yml"
+  with_items:
+    - metricbeat 
     - packetbeat
 
-- name: setup elasticsearch host
-  lineinfile:
-    line: "  hosts: [\"{{ elastic_host }}:9200\"]"
-    regexp: '^  #?hosts: \["localhost:9200"\]'
-    path: "/etc/{{ item }}/{{ item }}.yml"
+- name: Copy filebeat config if log exists
+  template:
+    src: "filebeat.yml.j2"
+    dest: "/etc/filebeat/filebeat.yml"
+  when: log_files is defined
+
+- name: Install modules
+  shell: "{{ item }} setup {{ modules }}"
   with_items:
-    - filebeat
-    - metricbeat
+    - metricbeat 
     - packetbeat
 
-- name: start services
+- name: Install modules for filebeat
+  shell: "filebeat setup {{ modules }}"
+  when: log_files is defined
+
+- name: Start services
   service:
     name: "{{ item }}"
     state: started
     enabled: true
   with_items:
-    - filebeat
     - metricbeat
     - packetbeat
+    - filebeat

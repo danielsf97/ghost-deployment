@@ -1,51 +1,37 @@
-
 ---
 
-- name: create build env for Docker
+
+- name: Create build env for Docker
   file:
-          path: /tmp/docker_env
-          state: directory
+    path: /tmp/docker_env
+    state: directory
 
-- name: create Dockerfile
+- name: Create Dockerfile
   template:
-          src: Dockerfile.j2
-          dest: /tmp/docker_env/Dockerfile
+    src: Dockerfile.j2
+    dest: /tmp/docker_env/Dockerfile
 
-- name: create config.production.json
+- name: Create config.production.json
   template:
-          src: Dockerfile.j2
-          dest: /tmp/docker_env/Dockerfile
+    src: Dockerfile.j2
+    dest: /tmp/docker_env/Dockerfile
 
-- debug:
-    msg: "{{ inventory_hostname }}"
-
-- debug:
-    msg: "{{ ansible_hostname }}"
-
-- name: Display all variables/facts known for a host
-  debug:
-    var: hostvars[inventory_hostname]
-    verbosity: 4
-    
-    
-- name: create Dockerfile
+- name: Create Dockerfile
   template:
-          src: config.production.json.j2
-          dest: /tmp/docker_env/config.production.json
+    src: config.production.json.j2
+    dest: /tmp/docker_env/config.production.json
 
-
-- name: build Docker image
+- name: Build Docker image
   docker_image:
     path: /tmp/docker_env
     name: my/ghost
 
-- name: run docker container in port 80
+- name: Run docker container in port 80
   docker_container:
-          name: ghost_blog
-          published_ports:
-            - 2368:2368
-          image: my/ghost
-          detach: false
+    name: ghost_blog
+    published_ports:
+      - 2368:2368
+    image: my/ghost
+    detach: false
   async: 3
   poll: 0
-

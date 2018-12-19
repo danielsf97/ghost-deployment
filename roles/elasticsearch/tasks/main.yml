@@ -1,24 +1,24 @@
 ---
 
 
-- name: pull elastic search docker image
+- name: Pull elastic search docker image
   docker_image:
     name: elasticsearch
     tag: 6.5.3
     pull: yes
 
-- name: pull kibana docker image
+- name: Pull kibana docker image
   docker_image:
     name: kibana
     tag: 6.5.3
     pull: yes
 
-- name: increase memory capacity
+- name: Increase memory capacity
   lineinfile:
     path: /etc/sysctl.conf
     line: vm.max_map_count=262144
 
-- name: enable ip forwarding
+- name: Enable ip forwarding
   lineinfile:
     path: /etc/sysctl.conf
     line: net.ipv4.ip_forward=1
@@ -26,7 +26,7 @@
 - name: Restart sysctl
   command: sysctl --system
 
-- name: run elasticsearch 
+- name: Run elasticsearch 
   docker_container:
     name: esearch
     published_ports:
@@ -34,7 +34,7 @@
       - 9300:9300 
     image: elasticsearch:6.5.3
 
-- name: run kibana
+- name: Run kibana
   docker_container: 
     name: kibana
     published_ports:

@@ -1,7 +1,6 @@
 ---
 
 
-
 - name: Include user variables
   include_vars:
     file: "{{ payload }}"
@@ -43,4 +42,3 @@
     host: "{{ item }}"
     port: 22
   loop: "{{ groups['all'] }}"
-

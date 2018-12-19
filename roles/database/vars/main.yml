@@ -1,2 +1,4 @@
 ---
-root_passwd: root
+
+
+root_passwd: "{{ lookup('passwordstore', 'sdb-ghost/db_root') }}"

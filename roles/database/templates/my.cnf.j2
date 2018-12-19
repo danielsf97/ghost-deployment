@@ -19,5 +19,39 @@
 
 !includedir /etc/mysql/conf.d/
 !includedir /etc/mysql/mysql.conf.d/
+
 [mysqld]
-bind-address = 0.0.0.0                       
+bind-address = 0.0.0.0
+server_id           = {{ groups['database'].index(inventory_hostname) + 1 }}
+log_bin             = /var/log/mysql/mysql-bin.log
+log_bin_index       = /var/log/mysql/mysql-bin.log.index
+relay_log           = /var/log/mysql/mysql-relay-bin
+relay_log_index     = /var/log/mysql/mysql-relay-bin.index
+expire_logs_days    = 10
+max_binlog_size     = 100M
+log_slave_updates   = 1
+auto-increment-increment = 2
+auto-increment-offset = {{ groups['database'].index(inventory_hostname) + 1 }}
+
+#gtid_mode = ON
+#enforce_gtid_consistency = ON
+#master_info_repository = TABLE
+#relay_log_info_repository = TABLE
+#binlog_checksum = NONE
+#log_slave_updates = ON
+#log_bin = binlog
+#binlog_format = ROW
+#transaction_write_set_extraction = XXHASH64
+#loose-group_replication_bootstrap_group = OFF
+#loose-group_replication_start_on_boot = ON
+#loose-group_replication_ssl_mode = REQUIRED
+#loose-group_replication_recovery_use_ssl = 1
+#loose-group_replication_group_name = "e7b7b34f-bde2-402a-83da-4ac99aa9f23a"
+#loose-group_replication_ip_whitelist = "{{ groups['database'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | join(',') }}"
+#loose-group_replication_group_seeds = "{{ groups['database'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | join(':33061,') }}:33061"
+#loose-group_replication_single_primary_mode = OFF
+#loose-group_replication_enforce_update_everywhere_checks = ON
+#server_id = {{ groups['database'].index(inventory_hostname) + 1 }}
+#bind-address = "{{ hostvars[groups['database'][groups['database'].index(inventory_hostname)]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}"
+#report_host = "{{ hostvars[groups['database'][groups['database'].index(inventory_hostname)]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}"
+#loose-group_replication_local_address = "{{ hostvars[groups['database'][groups['database'].index(inventory_hostname)]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}:33061"
