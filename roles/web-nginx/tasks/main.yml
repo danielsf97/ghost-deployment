@@ -18,7 +18,7 @@
     state: latest
   tags:
     - web
-  notify: restart nginx
+  notify: Restart nginx
 
 - name: Remove base install configuration
   file:
@@ -32,7 +32,7 @@
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
   notify:
-    - restart nginx
+    - Restart nginx
   tags:
     - web
 
@@ -41,7 +41,7 @@
     src: ghost.conf
     dest: /etc/nginx/conf.d/ghost.conf
   notify:
-    - restart nginx
+    - Restart nginx
   tags:
     - web
 
