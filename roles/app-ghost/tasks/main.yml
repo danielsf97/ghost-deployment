@@ -11,12 +11,7 @@
     src: Dockerfile.j2
     dest: /tmp/docker_env/Dockerfile
 
-- name: Create config.production.json
-  template:
-    src: Dockerfile.j2
-    dest: /tmp/docker_env/Dockerfile
-
-- name: Create Dockerfile
+- name: Create production configuration file
   template:
     src: config.production.json.j2
     dest: /tmp/docker_env/config.production.json

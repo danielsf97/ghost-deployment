@@ -33,11 +33,11 @@
         instances:
           - { index: 1, tags: database }
           - { index: 2, tags: database }
-          # - { index: 3, tags: elasticsearch }
-          # - { index: 4, tags: [app, nginx] }
-          # - { index: 5, tags: [app, nginx] }
-          # - { index: 6, tags: haproxy }
-          # - { index: 7, tags: jmeter }
+          - { index: 3, tags: elasticsearch }
+          - { index: 4, tags: [app, nginx] }
+          - { index: 5, tags: [app, nginx] }
+          - { index: 6, tags: haproxy }
+          - { index: 7, tags: jmeter }
 
 - hosts: all
   become: yes
