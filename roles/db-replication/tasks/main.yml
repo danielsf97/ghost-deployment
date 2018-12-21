@@ -1,0 +1,111 @@
+---
+
+- set_fact:
+    other_node_ext_ip: '{{ groups.database[1] }}'
+  when: inventory_hostname == groups.database[0]
+
+- set_fact:
+    other_node_int_ip: '{{ hostvars[other_node_ext_ip].ansible_all_ipv4_addresses[0] }}'
+  when: inventory_hostname == groups.database[0]
+
+- set_fact:
+    other_node_ext_ip: '{{ groups.database[0] }}'
+  when: inventory_hostname == groups.database[1]
+
+- set_fact:
+    other_node_int_ip: '{{ hostvars[other_node_ext_ip].ansible_all_ipv4_addresses[0] }}'
+  when: inventory_hostname == groups.database[1]
+
+- name: Ensure replication user exists on master.
+  mysql_user:
+    name: replication
+    host: '{{ other_node_int_ip }}'
+    password: password
+    priv: '*.*:REPLICATION SLAVE,REPLICATION CLIENT'
+    login_user: root
+    login_password: "{{ root_passwd }}"
+    state: present
+
+- name: Check master replication status.
+  mysql_replication: 
+    mode: getmaster
+    login_user: root
+    login_password: "{{ root_passwd }}"
+  delegate_to: '{{ other_node_ext_ip }}'
+  register: master
+
+- name: Start replication.
+  mysql_replication: 
+    mode: stopslave
+    login_user: root
+    login_password: "{{ root_passwd }}"
+
+- name: Configure replication on the slave.
+  mysql_replication:
+    mode: changemaster
+    master_host: '{{ other_node_int_ip }}'
+    master_user: replication
+    master_password: password
+    master_log_file: "{{ master.File }}"
+    master_log_pos: "{{ master.Position }}"
+    login_user: root
+    login_password: "{{ root_passwd }}"
+
+- name: Start replication.
+  mysql_replication: 
+    mode: startslave
+    login_user: root
+    login_password: "{{ root_passwd }}"
+
+
+
+
+
+
+
+
+# - name: Create replication user
+#   mysql_user:
+#     name: replication
+#     password: 'password'
+#     priv: "*.*:REPLICATION SLAVE"
+#     state: present
+#     login_user: root
+#     login_password: "{{ root_passwd }}"
+
+# - name: Run server 
+#   shell: mysql -u root -p'{{ root_passwd }}' -e 'SHOW MASTER STATUS;' > /tmp/master_status.txt
+#   sudo: no
+
+# - name: Get db_file
+#   shell: grep -Po 'mysql\S*' /tmp/master_status.txt
+#   register: db_file 
+
+# - name: Get db_position
+#   shell: grep -Po '(?<=\t)\d*' /tmp/master_status.txt
+#   register: db_position
+
+
+
+# - name: debug1
+#   debug:
+#     msg: replication@{{ hostvars[other_node_ip].ansible_all_ipv4_addresses[0] }}
+
+# - name: debug2
+#   debug:
+#     msg: >-
+#       mysql -u root -p'{{ root_passwd }}' -e 
+#       'stop slave;
+#       CHANGE MASTER TO master_host="'{{ hostvars[other_node_ip].ansible_all_ipv4_addresses[0] }}'", 
+#       master_port=3306, master_user="replication", master_password="password", 
+#       master_log_file="'{{ db_file.stdout }}'", master_log_pos='{{ db_position.stdout }}';
+#       start slave;'
+
+# - name: Make the other server master_status
+#   command: >-
+#       mysql -u root -p'{{ root_passwd }}' -e 
+#       'stop slave;
+#       CHANGE MASTER TO master_host="'{{ hostvars[other_node_ip].ansible_all_ipv4_addresses[0] }}'", 
+#       master_port=3306, master_user="replication", master_password="password", 
+#       master_log_file="'{{ db_file.stdout }}'", master_log_pos='{{ db_position.stdout }}';
+#       start slave;'

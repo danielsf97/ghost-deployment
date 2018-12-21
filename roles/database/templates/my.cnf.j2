@@ -21,7 +21,7 @@
 !includedir /etc/mysql/mysql.conf.d/
 
 [mysqld]
-bind-address = 0.0.0.0
+bind-address        = {{ hostvars[inventory_hostname].ansible_all_ipv4_addresses[0] }}
 server_id           = {{ groups['database'].index(inventory_hostname) + 1 }}
 log_bin             = /var/log/mysql/mysql-bin.log
 log_bin_index       = /var/log/mysql/mysql-bin.log.index

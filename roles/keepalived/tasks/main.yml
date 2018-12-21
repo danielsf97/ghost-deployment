@@ -1,0 +1,45 @@
+---
+
+- name: Set Kernel Options
+  include: set_kernel_options.yml
+
+- name: Install keepalived (debian/ubuntu)
+  apt: name=keepalived state=latest
+  when: ansible_os_family == "Debian"
+  tags: keepalived
+  notify: restart keepalived
+
+- name: Configurar keepalived
+  template: src=keepalived.conf.j2 dest=/etc/keepalived/keepalived.conf
+  tags: keepalived
+  # notify: restart keepalived
+
+- name: grants mysql hcheck in only one host
+  include: hcheck_mysql_grants.yml
+  when: inventory_hostname == groups.database[0]
+
+- name: chk_service script shell
+  template: 
+    src: mysql-check.sh.j2 
+    dest: /etc/keepalived/mysql-check.sh
+    mode: 0755
+    owner: root
+    group: root
+  tags: keepalived
+  # notify: restart keepalived
+
+- shell: 'sudo iptables -t nat -A PREROUTING -d {{ keepalived_shared_ip }} -p tcp -j REDIRECT'
+  become: yes
+
+- name: Copy iptables script
+  copy:
+    src: iptables.sh
+    dest: /etc/keepalived/iptables.sh
+    mode: "0755"
+  tags: keepalived
+  # notify: restart keepalived
+
+- name: Start keepalived
+  service: name=keepalived state=started
+  tags: keepalived
+  notify: restart keepalived

@@ -1,0 +1,115 @@
+#Configuration File for keepalived
+
+global_defs {
+  
+  notification_email {
+    danielsf97@gmail.com
+  }
+  {% if inventory_hostname == groups.database[0] %}
+    lvs_id lvs_host01
+    notification_email_from loadbalancer1
+    router_id lb1
+  {% else %}
+    lvs_id lvs_host02
+    notification_email_from loadbalancer2
+    router_id lb2
+  {% endif %}
+  smtp_server mail.bigpond.com
+  smtp_connect_timeout 5
+}
+vrrp_instance VI_1 {
+    interface {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}
+    state {{ keepalived_initial_state}}
+    lvs_sync_daemon_interface {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}
+    virtual_router_id 50
+    {% if inventory_hostname == groups.database[0] %}
+        priority {{ keepalived_priority }}
+    {% else %}
+        priority {{ keepalived_backup_priority }}
+    {% endif %}
+    advert_int 3
+    track_interface {
+      {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}
+    }
+    authentication {
+      auth_type PASS
+      auth_pass {{ keepalived_auth_pass }}
+    }
+    virtual_ipaddress {
+      {{ keepalived_shared_ip }} label {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}:1
+    }
+    notify_master "/etc/keepalived/iptables.sh {{ keepalived_shared_ip }} master"
+    notify_backup "/etc/keepalived/iptables.sh {{ keepalived_shared_ip }} backup"
+}
+virtual_server {{ keepalived_shared_ip }} 3306 {
+  delay_loop 6
+  nopreempt
+  lb_algo rr
+  lb_kind DR
+  protocol TCP
+  real_server {{ hostvars[groups['database'][0]].ansible_all_ipv4_addresses[0] }} 3306 {
+    weight 10
+    MISC_CHECK {
+      misc_path "/etc/keepalived/mysql-check.sh {{ hostvars[groups['database'][0]].ansible_all_ipv4_addresses[0] }}"
+      misc_timeout 15
+    }
+  }
+  real_server {{ hostvars[groups['database'][1]].ansible_all_ipv4_addresses[0] }} 3306 {
+    weight 10
+    MISC_CHECK {
+      misc_path "/etc/keepalived/mysql-check.sh {{ hostvars[groups['database'][1]].ansible_all_ipv4_addresses[0] }}"
+      misc_timeout 15
+    }
+  }
+}
+
+
+# global_defs {
+# }
+
+# vrrp_instance VI_1 {
+#     interface {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}
+#     state {{ keepalived_initial_state}}
+#     lvs_sync_daemon_interface {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}
+#     virtual_router_id {{ keepalived_router_id }}
+#     {% if inventory_hostname == groups.database[0] %}
+#         priority {{ keepalived_priority }}
+#     {% else %}
+#         priority {{ keepalived_backup_priority }}
+#     {% endif %}   
+#     advert_int 3
+#     track_script {
+#         {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}
+#     }
+#     authentication {
+#         auth_type PASS
+#         auth_pass {{ keepalived_auth_pass }}
+#     }
+#     virtual_ipaddress {
+#         {{ keepalived_shared_ip }} label {{ hostvars[inventory_hostname].ansible_default_ipv4.interface }}:0
+#     }
+#     notify_master "/etc/keepalived/iptables.sh {{ keepalived_shared_ip }} master"
+#     notify_backup "/etc/keepalived/iptables.sh {{ keepalived_shared_ip }} backup"
+# }
+
+# virtual_server {{ keepalived_shared_ip }} 3306 {
+#   delay_loop 6
+#   nopreempt
+#   lb_algo rr
+#   lb_kind DR
+#   protocol TCP
+#   real_server {{ hostvars[groups['database'][0]].ansible_all_ipv4_addresses[0] }} 3306 {
+#     weight 10
+#     MISC_CHECK {
+#       misc_path "/etc/keepalived/mysql-check.sh {{ hostvars[groups['database'][0]].ansible_all_ipv4_addresses[0] }}"
+#       misc_timeout 15
+#     }
+#   }
+#   real_server {{ hostvars[groups['database'][1]].ansible_all_ipv4_addresses[0] }} 3306 {
+#     weight 10
+#     MISC_CHECK {
+#       misc_path "/etc/keepalived/mysql-check.sh {{ hostvars[groups['database'][1]].ansible_all_ipv4_addresses[0] }}"
+#       misc_timeout 15
+#     }
+#   }
+# }

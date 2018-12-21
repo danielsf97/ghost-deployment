@@ -18,6 +18,7 @@
   with_items:
     - python-mysqldb
     - mysql-server
+    - mysql-client
           
 - name: Run mysql
   service:
@@ -53,6 +54,10 @@
   template:
     src: my.cnf.j2
     dest: /etc/mysql/my.cnf
+
+- name: Debug
+  debug:
+    var: hostvars[inventory_hostname].ansible_all_ipv4_addresses[0]
 
 - name: Restart mysql
   service:

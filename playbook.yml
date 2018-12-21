@@ -21,6 +21,7 @@
           - disk-04
           - disk-05
           - disk-06
+          - disk-07 
         addresses:
           - addr-01
           - addr-02
@@ -28,13 +29,15 @@
           - addr-04
           - addr-05
           - addr-06
+          - addr-07
         instances:
-          - { index: 1, tags: elasticsearch }
-          - { index: 2, tags: [app, nginx] }
-          - { index: 3, tags: [app, nginx] }
-          - { index: 4, tags: database }
-          - { index: 5, tags: haproxy }
-          - { index: 6, tags: jmeter }
+          - { index: 1, tags: database }
+          - { index: 2, tags: database }
+          # - { index: 3, tags: elasticsearch }
+          # - { index: 4, tags: [app, nginx] }
+          # - { index: 5, tags: [app, nginx] }
+          # - { index: 6, tags: haproxy }
+          # - { index: 7, tags: jmeter }
 
 - hosts: all
   become: yes
@@ -55,6 +58,14 @@
         password: "{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
         dbname: 'ghost_db'
       } 
+    - { role: db-replication,
+        username: 'root', #'blog',
+        password: "{{ lookup('passwordstore', 'sdb-ghost/db_root') }}",  #"{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
+      }
+    # - { role: keepalived,
+    #     username: 'root', #'blog',
+    #     password: "{{ lookup('passwordstore', 'sdb-ghost/db_root') }}",  #"{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
+    #   }
     - { role: beats,
         elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
         modules: ["mysql"],

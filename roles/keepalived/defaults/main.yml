@@ -1,0 +1,13 @@
+---
+
+# Variables for role keepalived
+
+keepalived_auth_pass: "password"
+keepalived_initial_state: "BACKUP"
+keepalived_router_id: "50"
+keepalived_shared_ip: "10.240.0.20"
+keepalived_check_process: "keepalived"
+keepalived_priority: "102"
+keepalived_backup_priority: "101"
+hcheck_user: hcheck
+hcheck_password: password
