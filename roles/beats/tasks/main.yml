@@ -35,14 +35,21 @@
     dest: "/etc/filebeat/filebeat.yml"
   when: log_files is defined
 
-- name: Install modules
-  shell: "{{ item }} setup {{ modules }}"
+- name: Install dashboards
+  shell: "{{ item }} setup"
   with_items:
     - metricbeat 
     - packetbeat
 
+- name: Install dashboards for filebeat
+  shell: "filebeat setup"
+  when: log_files is defined
+
+- name: Enable modules for metricbeat
+  shell: "metricbeat modules enable {{ modules | join(' ') }}"
+
 - name: Install modules for filebeat
-  shell: "filebeat setup {{ modules }}"
+  shell: "filebeat modules enable {{ modules | join(' ') }}"
   when: log_files is defined
 
 - name: Start services

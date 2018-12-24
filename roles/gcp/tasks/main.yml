@@ -1,4 +1,4 @@
-- name: create a disk
+- name: Create a disk
   gcp_compute_disk:
     name: "{{ item }}"
     size_gb: "{{ disk_size }}"
@@ -11,7 +11,7 @@
   register: disk
   loop: "{{ disks }}"
 
-- name: create a network
+- name: Create a network
   gcp_compute_network:
     name: "sdb-grupo9-network"
     project: "{{ gcp_project }}"
@@ -20,7 +20,7 @@
     state: present
   register: network
 
-- name: create a address
+- name: Create an address
   gcp_compute_address:
     name: "{{ item }}"
     region: "{{ gcp_region }}"
@@ -31,7 +31,7 @@
   register: address
   loop: "{{ addresses }}"
 
-- name: internal/external firewall rules
+- name: Internal/external firewall rules
   gcp_compute_firewall:
     name: "internal-external-rules"
     allowed:
@@ -46,7 +46,7 @@
     service_account_file: "{{ gcp_cred_file }}"
     state: present
 
-- name: internal firewall rules
+- name: Internal firewall rules
   gcp_compute_firewall:
     name: "internal-rules"
     allowed:
@@ -66,10 +66,11 @@
     service_account_file: "{{ gcp_cred_file }}"
     state: present
 
-- name: create a instance
+- name: Create an instance
   gcp_compute_instance:
     name: "instance-{{ '%02d' | format(item.index) }}"
     machine_type: "{{ gcp_machine_type }}"
+    can_ip_forward: true
     disks:
       - auto_delete: true
         boot: true

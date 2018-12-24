@@ -18,4 +18,4 @@
     dest: "Ghost.jmx"
 
 - name: Run jmeter test
-  command: ./apache-jmeter-5.0/bin/jmeter -n -t Ghost.jmx
+  command: ./apache-jmeter-5.0/bin/jmeter -n -t Ghost.jmx -l Ghost.jtl
