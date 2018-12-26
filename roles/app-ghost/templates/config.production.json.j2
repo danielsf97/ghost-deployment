@@ -7,10 +7,10 @@
   "database": {
     "client": "mysql",
     "connection": {
-      "host": "{{ hostvars[groups['database'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
-      "user": "blog",
+      "host": "{{ keepalived_shared_ip }}",
+      "user": "{{ username }}",
       "password": "{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
-      "database": "ghost_db"
+      "database": "{{ dbname }}"
     }
   },
   "mail": {

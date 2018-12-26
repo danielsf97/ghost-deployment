@@ -55,6 +55,7 @@
 - hosts: database
   become: yes
   roles:
+    - role: keepalived
     - { role: database,
         username: 'blog',
         password: "{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
@@ -64,10 +65,6 @@
         username: 'root', #'blog',
         password: "{{ lookup('passwordstore', 'sdb-ghost/db_root') }}",  #"{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
       }
-    # - { role: keepalived,
-    #     username: 'root', #'blog',
-    #     password: "{{ lookup('passwordstore', 'sdb-ghost/db_root') }}",  #"{{ lookup('passwordstore', 'sdb-ghost/db_user') }}",
-    #   }
     - { role: beats,
         elastic_host: "{{ hostvars[groups['elasticsearch'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}",
         modules: ["mysql"],
@@ -78,7 +75,10 @@
   become: yes
   roles:
     - role: docker
-    - role: app-ghost
+    - { role: app-ghost,
+        username: 'blog',
+        dbname: 'ghost_db'
+      }
 
 - hosts: nginx
   become: yes

@@ -50,25 +50,13 @@
     login_user: root
     login_password: "{{ root_passwd }}"
 
-# Set ip forwarding on in /proc and in the sysctl file and reload if necessary
-- name: Set ipv4 forwarding
-  sysctl:
-    name: net.ipv4.ip_forward
-    value: 1
-    sysctl_set: yes
-    state: present
-    reload: yes
-
 - name: Replace config file
   template:
     src: my.cnf.j2
     dest: /etc/mysql/my.cnf
 
-- name: Debug
-  debug:
-    var: hostvars[inventory_hostname].ansible_all_ipv4_addresses[0]
-
 - name: Restart mysql
   service:
     name: mysql
     state: restarted
+

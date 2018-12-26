@@ -16,12 +16,19 @@
     src: config.production.json.j2
     dest: /tmp/docker_env/config.production.json
 
-- name: Build Docker image
+- name: Build Docker image 1
   docker_image:
     path: /tmp/docker_env
     name: my/ghost
+  when: inventory_hostname == groups.app[0]
 
-- name: Run docker container in port 80
+- name: Build Docker image 2
+  docker_image:
+    path: /tmp/docker_env
+    name: my/ghost
+  when: inventory_hostname == groups.app[1]
+
+- name: Run docker container in port 2368
   docker_container:
     name: ghost_blog
     published_ports:

@@ -1,0 +1,15 @@
+#!/bin/bash
+gcloud compute routes delete floating --quiet
+gcloud compute routes create floating \
+    --destination-range {{ keepalived_shared_ip }}/32 --network sdb-grupo9-network\
+    --priority 500 --next-hop-instance-zone us-east1-b \
+    --next-hop-instance {{ ansible_hostname }} --quiet
+
+rule=("REDIRECT   tcp  --  0.0.0.0/0            {{ keepalived_shared_ip }}         ")
+
+if iptables -L -n -t nat | grep -q "$rule"
+then
+        :
+else
+        iptables -t nat -A PREROUTING -d {{ keepalived_shared_ip }} -p tcp -j REDIRECT
+fi
