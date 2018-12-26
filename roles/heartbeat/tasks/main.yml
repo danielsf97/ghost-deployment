@@ -19,6 +19,9 @@
     src: "heartbeat.yml.j2"
     dest: "/etc/heartbeat/heartbeat.yml"
 
+- name: Sleep
+  shell: sleep 120
+
 - name: Install heartbeat dashboards
   shell: "heartbeat setup --dashboards"
 
