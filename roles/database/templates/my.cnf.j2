@@ -22,6 +22,8 @@
 
 [mysqld]
 bind-address        = {{ hostvars[inventory_hostname].ansible_all_ipv4_addresses[0] }}
+general_log_file    = /var/log/mysql/mysql.log
+general_log         = 1
 server_id           = {{ groups['database'].index(inventory_hostname) + 1 }}
 log_bin             = /var/log/mysql/mysql-bin.log
 log_bin_index       = /var/log/mysql/mysql-bin.log.index

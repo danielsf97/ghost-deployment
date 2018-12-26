@@ -61,3 +61,8 @@
     - metricbeat
     - packetbeat
     - filebeat
+
+- name: Restart filebeat
+  service:
+    name: filebeat
+    state: restarted

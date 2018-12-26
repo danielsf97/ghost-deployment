@@ -71,6 +71,10 @@
     name: "instance-{{ '%02d' | format(item.index) }}"
     machine_type: "{{ gcp_machine_type }}"
     can_ip_forward: true
+    service_accounts:
+      - scopes: 
+         - "{{ gcp_account_scope }}"
+        email: "{{ gcp_account_email }}"
     disks:
       - auto_delete: true
         boot: true

@@ -11,6 +11,8 @@
         gcp_project: sbdgrupo9
         gcp_cred_kind: serviceaccount
         gcp_cred_file: credentials.json
+        gcp_account_email: '996262117555-compute@developer.gserviceaccount.com'
+        gcp_account_scope: 'https://www.googleapis.com/auth/cloud-platform'
         gcp_machine_type: n1-standard-1
         source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20181030
         disk_size: 12
