@@ -19,6 +19,6 @@ vrrp_instance floating_ip {
         auth_type PASS
         auth_pass yourpassword
     }
-    notify_master /etc/keepalived/takeover.sh 
-    notify_backup /etc/keepalived/iptables.sh  
+    notify_master /etc/keepalived/master.sh 
+    notify_backup /etc/keepalived/backup.sh  
 }
