@@ -35,5 +35,3 @@
       - 2368:2368
     image: my/ghost
     detach: false
-  async: 3
-  poll: 0

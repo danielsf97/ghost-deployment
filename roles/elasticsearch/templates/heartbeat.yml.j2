@@ -1,7 +1,3 @@
-curl -L -O https://artifacts.elastic.co/downloads/beats/heartbeat/heartbeat-6.5.3-amd64.deb
-sudo dpkg -i heartbeat-6.5.3-amd64.deb
-
-
 ################### Heartbeat Configuration Example #########################
 # This file is an example configuration file highlighting only some common options.
 # The heartbeat.reference.yml file in the same directory contains all the supported options
@@ -14,8 +10,8 @@ heartbeat.monitors:
 - type: http
   schedule: '@every 10s'
   urls:
-  {% for ip in {{ groups['nginx'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) }} %}
-    - "http://{{ ip }}"
+  {% for web_server in groups['nginx'] %}
+    - "http://{{ hostvars[web_server].ansible_all_ipv4_addresses[0] }}"
   {% endfor %}
     - "http://{{ hostvars[groups['haproxy'][0]]['ansible_%s' | format(ansible_interfaces[0])].ipv4.address }}"
     
