@@ -68,7 +68,7 @@
 - name: Create an instance
   gcp_compute_instance:
     name: "instance-{{ '%02d' | format(item.index) }}"
-    machine_type: "{{ gcp_machine_type }}"
+    machine_type: "{{ item.gcp_machine_type }}"
     can_ip_forward: true
     service_accounts:
       - scopes: 

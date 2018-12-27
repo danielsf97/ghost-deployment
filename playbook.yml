@@ -13,7 +13,6 @@
         gcp_cred_file: credentials.json
         gcp_account_email: '996262117555-compute@developer.gserviceaccount.com'
         gcp_account_scope: 'https://www.googleapis.com/auth/cloud-platform'
-        gcp_machine_type: n1-standard-1
         source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20181030
         disk_size: 12
         disks:
@@ -33,13 +32,13 @@
           - addr-06
           - addr-07
         instances:
-          - { index: 1, tags: database }
-          - { index: 2, tags: database }
-          - { index: 3, tags: elasticsearch }
-          - { index: 4, tags: [app, nginx] }
-          - { index: 5, tags: [app, nginx] }
-          - { index: 6, tags: haproxy }
-          - { index: 7, tags: jmeter }
+          - { index: 1,tags: database, gcp_machine_type: n1-standard-1 }
+          - { index: 2, tags: database, gcp_machine_type: n1-standard-1 }
+          - { index: 3, tags: elasticsearch, gcp_machine_type: n1-standard-2 }
+          - { index: 4, tags: [app, nginx], gcp_machine_type: n1-standard-1 }
+          - { index: 5, tags: [app, nginx], gcp_machine_type: n1-standard-1 }
+          - { index: 6, tags: haproxy, gcp_machine_type: n1-standard-1 }
+          - { index: 7, tags: jmeter, gcp_machine_type: n1-standard-1 }
 
 - hosts: all
   become: yes
@@ -51,7 +50,6 @@
   roles:
      - docker
      - elasticsearch
-     - heartbeat
 
 - hosts: database
   become: yes
