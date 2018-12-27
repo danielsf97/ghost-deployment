@@ -22,16 +22,30 @@
     name: my/ghost
   when: inventory_hostname == groups.app[0]
 
-- name: Build Docker image 2
-  docker_image:
-    path: /tmp/docker_env
-    name: my/ghost
-  when: inventory_hostname == groups.app[1]
-
-- name: Run docker container in port 2368
+- name: Run docker container 1 in port 2368
   docker_container:
     name: ghost_blog
     published_ports:
       - 2368:2368
     image: my/ghost
     detach: false
+  async: 3
+  poll: 0
+  when: inventory_hostname == groups.app[0]
+
+- name: Build Docker image 2
+  docker_image:
+    path: /tmp/docker_env
+    name: my/ghost
+  when: inventory_hostname == groups.app[1]
+
+- name: Run docker container 2 in port 2368
+  docker_container:
+    name: ghost_blog
+    published_ports:
+      - 2368:2368
+    image: my/ghost
+    detach: false
+  async: 3
+  poll: 0
+  when: inventory_hostname == groups.app[1]
