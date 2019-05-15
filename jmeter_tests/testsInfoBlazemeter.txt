@@ -1,0 +1,40 @@
+https://www.gettyimages.pt/gi-resources/images/Homepage/Hero/PT/PT_hero_42_153645159.jpg
+
+sudo ./apache-jmeter-5.0/bin/jmeter -n -t Ghost.jmx -l Ghost.jtl
+
+scp postingM.jmx 35.231.177.53:/home/danielsf97
+sudo mv postingM.jmx ../helena/
+
+<img src="https://www.gettyimages.pt/gi-resources/images/Homepage/Hero/PT/PT_hero_42_153645159.jpg">
+
+gcloud compute scp instance-07:/home/danielsf97/posting.jtl  .  --project sbdgrupo9 --zone us-east1-b
+
+35.229.90.248/login
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis sem urna. Sed nunc dolor, malesuada eu iaculis in, tincidunt quis magna. Duis porttitor dignissim viverra. Mauris at auctor ante. In sollicitudin eros in blandit pellentesque. Morbi et mauris bibendum, bibendum enim quis, mollis dui. Mauris ac dapibus dolor, a iaculis nisi. Suspendisse facilisis, risus eu mollis pulvinar, odio purus ullamcorper lorem, in iaculis velit leo et nibh. Proin finibus hendrerit commodo. Cras et elit et leo ornare tempus. Vivamus maximus, felis at aliquam varius, lorem urna eleifend justo, at euismod nisi ex vitae urna.
+
+Cras bibendum augue sem, eu commodo urna fringilla sed. Curabitur volutpat libero nec nunc auctor, ac consequat sapien accumsan. Aliquam erat volutpat. Curabitur ex ipsum, viverra non tincidunt sit amet, faucibus sed nunc. Suspendisse at mi tempor, sollicitudin felis vel, scelerisque elit. Vivamus malesuada lectus in turpis ornare sagittis. Nunc elit massa, elementum et odio vitae, malesuada tristique tellus.
+
+Sed vel arcu vitae nisi ullamcorper bibendum eu fringilla purus. Ut sollicitudin turpis sed enim volutpat commodo. Etiam in nulla ac lorem mollis imperdiet vitae ac dui. Duis vitae tortor sit amet diam sollicitudin bibendum vitae viverra metus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent eget felis massa. Morbi mollis massa at lobortis pellentesque.
+
+Proin lacinia, nisl nec molestie vestibulum, nibh urna rutrum nisl, lacinia vulputate libero eros vitae lectus. Nunc quis efficitur enim. Integer placerat sem sit amet est feugiat, ac consequat odio ultricies. Integer id leo est. Ut vehicula placerat laoreet. Vivamus id mauris eu leo consequat elementum et id metus. Proin congue gravida massa. Integer elementum tellus ex, non faucibus purus mollis quis.
+
+Curabitur eget leo augue. Integer fringilla libero cursus diam rhoncus tristique. Suspendisse aliquam sodales mauris at blandit. Aliquam sed urna velit. Morbi finibus ultrices felis eget aliquam. Nulla magna lacus, finibus non felis at, ornare blandit nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vestibulum nec laoreet massa. Sed laoreet, tortor non hendrerit accumsan, enim est tempus leo, non sodales enim augue sed nisi. Duis scelerisque nisi ex, sed blandit enim hendrerit eu. Vivamus sed finibus ipsum, non venenatis tortor.
+
+
+
+
+
+#escrita de relatório
+-> https://www.devmedia.com.br/teste-de-performance-com-jmeter/34621
+#slides do stor
+-> https://www.dropbox.com/sh/414wvtgnl091rc5/AAACoNbZdc91h77FtdbrNV6xa/08?dl=0&subfolder_nav_tracking=1
+#working with jmeter e csv
+-> https://octoperf.com/blog/2017/10/19/how-to-analyze-jmeter-results/
+
+
+-> https://www.guru99.com/jmeter-performance-testing.html
+-> https://www.blazemeter.com/blog/advanced-load-testing-scenarios-jmeter-part-4-stepping-thread-group-and-concurrency-thread?utm_source=BM&utm_medium=BM_blog&utm_campaign=how-perform-stress-test-jmeter
+-> https://www.blazemeter.com/blog/how-perform-stress-test-jmeter
+#
+-> gráficos R
